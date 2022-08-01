@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.content.withStyledAttributes
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -28,9 +29,14 @@ private const val RADIUS_OFFSET_INDICATOR = -35
 
 class DialView @JvmOverloads constructor(
     context: Context,
-    attribut: AttributeSet? = null,
+    attribute: AttributeSet? = null,
     defStylrAttributeSet: Int = 0
-) : View(context, attribut, defStylrAttributeSet) {
+) : View(context, attribute, defStylrAttributeSet) {
+
+    private var fanSpeedLowColor = 0
+    private var fanSpeedMediumColor = 0
+    private var fanSpeedHighColor = 0
+
     private var radius = 0.0f
     private var fanSpeed = FanSpeed.OFF
 
@@ -45,6 +51,12 @@ class DialView @JvmOverloads constructor(
 
     init {
         isClickable = true
+
+        context.withStyledAttributes(attribute, R.styleable.DialView) {
+            fanSpeedLowColor = getColor(R.styleable.DialView_fanColor1, 0)
+            fanSpeedMediumColor = getColor(R.styleable.DialView_fanColor2, 0)
+            fanSpeedHighColor = getColor(R.styleable.DialView_fanColor3, 0)
+        }
     }
 
     override fun performClick(): Boolean {
@@ -71,7 +83,7 @@ class DialView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         //set dial backgorund
-        paint.color = if (fanSpeed == FanSpeed.OFF) Color.GRAY else Color.GREEN
+//        paint.color = if (fanSpeed == FanSpeed.OFF) Color.GRAY else Color.GREEN
 
         //draw dial
         canvas?.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), radius, paint)
@@ -89,6 +101,15 @@ class DialView @JvmOverloads constructor(
             val label = resources.getString(i.label)
             canvas?.drawText(label, pointPosisition.x, pointPosisition.y, paint)
         }
+
+        //set ganti warna
+        paint.color = when (fanSpeed){
+            FanSpeed.OFF -> Color.GRAY
+            FanSpeed.LOW -> fanSpeedLowColor
+            FanSpeed.MEDIUM -> fanSpeedMediumColor
+            FanSpeed.HIGH -> fanSpeedHighColor
+        } as Int
+
 
     }
 
